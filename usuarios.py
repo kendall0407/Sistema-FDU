@@ -5,6 +5,49 @@ import pyodbc
 ESTADO_ACTIVO = 1
 ESTADO_INACTIVO = 2
 
+# Roles
+ROL_ESTUDIANTE = 1
+ROL_ESTUDIANTE_GRADUADO = 2
+ROL_MIEMBRO_COMITE = 3
+ROL_ASISTENTE_CIC = 4
+ROL_ADMINISTRATIVO = 5
+
+# Roles permitidos por función
+ROLES_ELIMINAR_REACTIVAR = {ROL_MIEMBRO_COMITE, ROL_ADMINISTRATIVO}
+ROLES_ACTUALIZAR = {ROL_ESTUDIANTE, ROL_ESTUDIANTE_GRADUADO, ROL_ADMINISTRATIVO}
+ROLES_OBTENER = {ROL_MIEMBRO_COMITE, ROL_ASISTENTE_CIC, ROL_ADMINISTRATIVO}
+
+
+def ObtenerRolSolicitante(correo_solicitante):
+    if not correo_solicitante:
+        return None
+
+    conexion = ObtenerConexion()
+    cursor = conexion.cursor()
+
+    try:
+        cursor.execute(
+            """
+            SELECT rol_id
+            FROM Usuario
+            WHERE correo = ? AND estado_id = ? AND bloqueado = 0
+            """,
+            (correo_solicitante, ESTADO_ACTIVO)
+        )
+        fila = cursor.fetchone()
+        return fila[0] if fila else None
+
+    except pyodbc.Error:
+        return None
+
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def TienePermiso(correo_solicitante, roles_permitidos):
+    rol = ObtenerRolSolicitante(correo_solicitante)
+    return rol is not None and rol in roles_permitidos
 
 def CrearUsuario(identificacion, nombre, apellido, correo, telefono, contrasena, rol_id):
     # Validaciones antes de abrir la conexión
@@ -16,6 +59,12 @@ def CrearUsuario(identificacion, nombre, apellido, correo, telefono, contrasena,
 
     if len(contrasena) < 8:
         return False, "La contraseña debe tener al menos 8 caracteres"
+    
+    if not telefono:
+        return False, "El teléfono es obligatorio"
+
+    if correo:
+        correo = correo.strip()  # Eliminar espacios en blanco al inicio y al final
 
     conexion = ObtenerConexion()
     cursor = conexion.cursor()
@@ -28,8 +77,10 @@ def CrearUsuario(identificacion, nombre, apellido, correo, telefono, contrasena,
 
         if cursor.fetchone() is not None:
             return False, "Ya existe un usuario con esa identificación o correo"
-
+        
+        
         cursor.execute(
+            
             """
             INSERT INTO Usuario
             (identificacion, nombre, apellidos, correo, telefono, contrasena, rol_id)
@@ -51,9 +102,12 @@ def CrearUsuario(identificacion, nombre, apellido, correo, telefono, contrasena,
         conexion.close()
 
 
-def ObtenerUsuario(correo):
+def ObtenerUsuario(correo, correo_solicitante):
     if not correo:
         return False, "El correo es obligatorio"
+
+    if not TienePermiso(correo_solicitante, ROLES_OBTENER):
+        return False, "No tienes permiso para desactivar usuarios"
 
     conexion = ObtenerConexion()
     cursor = conexion.cursor()
@@ -90,6 +144,7 @@ def ObtenerUsuario(correo):
     finally:
         cursor.close()
         conexion.close()
+
 
 
 def VerificarCredenciales(correo, contrasena):
@@ -133,9 +188,15 @@ def _ContrasenaCoincide(hash_guardado, contrasena):
         return False
 
 
-def ActualizarUsuario(correo, nombre=None, apellido=None, contrasena=None):
+def ActualizarUsuario(correo, correo_solicitante, nombre=None, apellido=None, contrasena=None):
     if not correo:
         return False, "El correo es obligatorio"
+
+    if not TienePermiso(correo_solicitante, ROLES_ACTUALIZAR):
+        return False, "No tienes permiso para desactivar usuarios"
+
+    if correo.strip().lower() != correo_solicitante.strip().lower():
+        return False, "Solo puedes modificar tu propio usuario"
 
     if contrasena is not None and len(contrasena) < 8:
         return False, "La contraseña debe tener al menos 8 caracteres"
@@ -190,9 +251,12 @@ def ActualizarUsuario(correo, nombre=None, apellido=None, contrasena=None):
         conexion.close()
 
 
-def EliminarUsuario(correo):
+def EliminarUsuario(correo, correo_solicitante):
     if not correo:
         return False, "El correo es obligatorio"
+
+    if not TienePermiso(correo_solicitante, ROLES_ELIMINAR_REACTIVAR):
+        return False, "No tienes permiso para desactivar usuarios"
 
     conexion = ObtenerConexion()
     cursor = conexion.cursor()
@@ -204,7 +268,8 @@ def EliminarUsuario(correo):
             UPDATE Usuario
             SET estado_id = ?,
                 fecha_desactivacion = SYSDATETIME(),
-                fecha_modificacion = SYSDATETIME()
+                fecha_modificacion = SYSDATETIME(),
+                bloqueado = 1
             WHERE correo = ? AND estado_id = ?
             """,
             (ESTADO_INACTIVO, correo, ESTADO_ACTIVO)
@@ -220,6 +285,49 @@ def EliminarUsuario(correo):
     except pyodbc.Error as error:
         conexion.rollback()
         return False, f"Error al desactivar el usuario: {error}"
+
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def ReactivarUsuario(correo, correo_solicitante):
+    if not correo:
+        return False, "El correo es obligatorio"
+
+    correo = correo.strip()
+
+    if not TienePermiso(correo_solicitante, ROLES_ELIMINAR_REACTIVAR):
+        return False, "No tienes permiso para reactivar usuarios"
+
+    conexion = ObtenerConexion()
+    cursor = conexion.cursor()
+
+    try:
+        cursor.execute(
+            """
+            UPDATE Usuario
+            SET estado_id = ?,
+                bloqueado = 0,
+                fecha_desactivacion = NULL,
+                fecha_modificacion = SYSDATETIME()
+            WHERE correo = ?
+              AND estado_id = ?
+              AND fecha_desactivacion IS NOT NULL
+            """,
+            (ESTADO_ACTIVO, correo, ESTADO_INACTIVO)
+        )
+
+        if cursor.rowcount == 0:
+            conexion.rollback()
+            return False, "Usuario no encontrado o ya estaba activo"
+
+        conexion.commit()
+        return True, "Usuario reactivado correctamente"
+
+    except pyodbc.Error as error:
+        conexion.rollback()
+        return False, f"Error al reactivar el usuario: {error}"
 
     finally:
         cursor.close()
