@@ -27,6 +27,15 @@ CAMPOS = (
     "LineaAccion",
 )
 
+
+CAMPOS_MODIFICABLES = (
+    "MontoSolicitado",
+    "InformacionBancaria",
+    "NombreActividad",
+    "Justificacion",
+    "LineaAccion",
+)
+
 # Lectura interna: solo columnas de Solicitudes, con ids (la usan las validaciones)
 COLUMNAS_INTERNAS = (
     "IdSolicitud, usuario_id, estado_id, " + ", ".join(CAMPOS)
@@ -63,6 +72,8 @@ ROLES_SOLO_PROPIAS = {ROL_ESTUDIANTE, ROL_ESTUDIANTE_GRADUADO}
 def _ObtenerRol(cursor, correo):
     if not correo:
         return None
+    
+    correo = correo.strip()
 
     cursor.execute(
         "SELECT rol_id FROM Usuario WHERE correo = ? AND estado_id = ? AND bloqueado = 0",
@@ -105,7 +116,7 @@ def _ValidarDatos(cursor, datos):
         return False, "El monto solicitado debe ser mayor que cero"
 
     cursor.execute(
-        "SELECT MontoMaximo FROM LineaAccion WHERE IdLineaAccion = ?",
+        "SELECT MontoMaximo FROM LineaAccion WHERE IdLineaAccion = ? AND Estado = 'ACTIVA'",
         (datos["LineaAccion"],)
     )
     linea = cursor.fetchone()
@@ -266,11 +277,18 @@ def BuscarSolicitudes(criterio, correo_solicitante):
         cursor.close()
         conexion.close()
 
+
 def ModificarSolicitud(id_solicitud, usuario_id, cambios, correo_solicitante):
+
     if not cambios:
         return False, "No hay campos para actualizar"
 
-    no_editables = [campo for campo in cambios if campo not in CAMPOS]
+    # Verificar que únicamente se modifiquen campos permitidos.
+    no_editables = [
+        campo for campo in cambios
+        if campo not in CAMPOS_MODIFICABLES
+    ]
+
     if no_editables:
         return False, "Campos no editables: " + ", ".join(no_editables)
 
@@ -279,9 +297,14 @@ def ModificarSolicitud(id_solicitud, usuario_id, cambios, correo_solicitante):
 
     try:
         cursor.execute(
-            f"SELECT {COLUMNAS_INTERNAS} FROM Solicitudes WHERE IdSolicitud = ?",
+            f"""
+            SELECT {COLUMNAS_INTERNAS}
+            FROM Solicitudes
+            WHERE IdSolicitud = ?
+            """,
             (id_solicitud,)
         )
+
         fila = cursor.fetchone()
 
         if fila is None:
@@ -289,29 +312,51 @@ def ModificarSolicitud(id_solicitud, usuario_id, cambios, correo_solicitante):
 
         actual = _Mapear(cursor, [fila])[0]
 
+        # Verificar permisos del solicitante.
         rol = _ObtenerRol(cursor, correo_solicitante)
-        if not _PuedeGestionarSolicitud(rol, actual["usuario_id"], usuario_id):
+
+        if not _PuedeGestionarSolicitud(
+            rol,
+            actual["usuario_id"],
+            usuario_id
+        ):
             return False, "No tiene permisos para modificar esta solicitud"
 
+        # Verificar que la solicitud pueda modificarse.
         if actual["estado_id"] not in ESTADOS_MODIFICABLES:
             return False, "La solicitud no puede modificarse en su estado actual"
 
-        # Se valida la solicitud completa tal como quedaría después del cambio
-        datos = {campo: actual[campo] for campo in CAMPOS}
+        # Preparar los datos completos de la solicitud.
+        # Los datos personales y el rol permanecen intactos.
+        datos = {
+            campo: actual[campo]
+            for campo in CAMPOS
+        }
+
         datos.update(cambios)
 
+        # Validar todos los datos resultantes.
         valido, mensaje = _ValidarDatos(cursor, datos)
+
         if not valido:
             return False, mensaje
 
-        # Si el Comité había pedido información adicional y ya se completó, vuelve a REGISTRADA
+        # Si estaba pendiente de información adicional,
+        # vuelve al estado REGISTRADA después de corregirse.
         if actual["estado_id"] == ESTADO_INFO_ADICIONAL:
             nuevo_estado = ESTADO_REGISTRADA
         else:
             nuevo_estado = actual["estado_id"]
 
+        # Construir actualización únicamente con campos permitidos.
         columnas = list(cambios.keys())
-        asignaciones = ", ".join(f"{campo} = ?" for campo in columnas)
+
+        asignaciones = ", ".join(
+            f"{campo} = ?"
+            for campo in columnas
+        )
+
+        valores = [cambios[campo] for campo in columnas]
 
         cursor.execute(
             f"""
@@ -321,10 +366,11 @@ def ModificarSolicitud(id_solicitud, usuario_id, cambios, correo_solicitante):
                 fecha_modificacion = SYSDATETIME()
             WHERE IdSolicitud = ?
             """,
-            [cambios[campo] for campo in columnas] + [nuevo_estado, id_solicitud]
+            valores + [nuevo_estado, id_solicitud]
         )
 
         conexion.commit()
+
         return True, "Solicitud modificada correctamente"
 
     except pyodbc.Error as error:
@@ -334,6 +380,7 @@ def ModificarSolicitud(id_solicitud, usuario_id, cambios, correo_solicitante):
     finally:
         cursor.close()
         conexion.close()
+
 
 
 def EliminarSolicitud(id_solicitud, usuario_id, correo_solicitante):
