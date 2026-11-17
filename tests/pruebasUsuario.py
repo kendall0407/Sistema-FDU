@@ -299,7 +299,7 @@ def probar_reactivar_usuario():
 # =====================================================
 
 if __name__ == "__main__":
-
+    probar_crear_usuario()
     probar_obtener_usuario()
     probar_actualizar_usuario()
     probar_eliminar_usuario()

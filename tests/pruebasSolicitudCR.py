@@ -17,6 +17,7 @@ def ObtenerLineaAccion():
             SELECT TOP 1 IdLineaAccion
             FROM LineaAccion
             WHERE MontoMaximo >= 50000
+            AND Estado = 'ACTIVA'
             ORDER BY IdLineaAccion
             """
         )
