@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block titulo %}Solicitudes{% endblock %}{% block contenido %}
+<div class="d-flex justify-content-between mb-4"><h1>Solicitudes</h1>{% if rol_actual in [1,2,5] %}<a class="btn btn-fdu" href="{{ url_for('fdu.nueva_solicitud') }}">+ Nueva solicitud</a>{% endif %}</div>
+<div class="card card-fdu"><div class="card-body p-4"><input class="form-control mb-3" data-filter="tablaSolicitudes" placeholder="Buscar solicitud..."><div class="table-responsive"><table id="tablaSolicitudes" class="table table-hover"><thead><tr><th>ID</th><th>Solicitante</th><th>Actividad</th><th>Monto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+{% for s in solicitudes %}<tr><td>#{{ s.id }}</td><td>{{ s.solicitante }}</td><td>{{ s.actividad }}</td><td>₡{{ s.monto }}</td><td>{{ s.estado }}</td><td>
+{% if s.estado|upper in ['REGISTRADA','INFO_ADICIONAL'] %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('fdu.editar_solicitud',id_solicitud=s.id) }}">Editar</a>{% endif %}
+{% if s.estado|upper == 'REGISTRADA' %}<form class="d-inline" method="POST" action="{{ url_for('fdu.eliminar_solicitud',id_solicitud=s.id) }}"><input name="_csrf" type="hidden" value="{{ fdu_csrf() }}"><button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta solicitud?')">Eliminar</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="6">No hay solicitudes.</td></tr>{% endfor %}</tbody></table></div></div></div>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/fdu.js') }}"></script>{% endblock %}

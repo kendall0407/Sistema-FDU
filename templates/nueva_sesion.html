@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block titulo %}Nueva sesión{% endblock %}{% block contenido %}
+<a href="{{ url_for('fdu.sesiones') }}">← Volver</a><h1>Nueva sesión</h1>
+<form method="POST" class="card card-fdu p-4 row g-3"><input type="hidden" name="_csrf" value="{{ fdu_csrf() }}">
+<div class="col-md-4"><label class="form-label">Fecha</label><input type="date" name="fecha" class="form-control" required></div>
+<div class="col-md-4"><label class="form-label">Hora inicio</label><input type="time" name="inicio" class="form-control" required></div>
+<div class="col-md-4"><label class="form-label">Hora fin (opcional)</label><input type="time" name="fin" class="form-control"></div>
+<div class="col-12"><label class="form-label">Participantes (miembros activos del comité; elegí al menos uno)</label><select name="participantes" class="form-select" multiple size="6" required>{% for m in miembros %}<option value="{{ m.id }}">{{ m.nombre }} {{ m.apellidos }}</option>{% endfor %}</select><small class="text-secondary">Ctrl + clic para seleccionar varios.</small></div>
+<div><button class="btn btn-fdu">Guardar sesión</button></div></form>{% endblock %}

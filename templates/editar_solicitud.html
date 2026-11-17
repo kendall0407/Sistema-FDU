@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block titulo %}Editar solicitud{% endblock %}{% block contenido %}
+<a href="{{ url_for('fdu.solicitudes') }}">← Volver</a><h1>Editar solicitud #{{ solicitud.id }}</h1>
+<form method="POST" class="card card-fdu p-4 row g-3"><input type="hidden" name="_csrf" value="{{ fdu_csrf() }}">
+<div class="col-md-6"><label class="form-label">Monto</label><input type="number" min="0.01" step="0.01" name="monto" class="form-control" value="{{ solicitud.MontoSolicitado }}" required></div>
+<div class="col-md-6"><label class="form-label">Línea de acción</label><select name="linea_accion" class="form-select">{% for l in lineas %}<option value="{{ l.id }}" {% if solicitud.LineaAccion == l.id %}selected{% endif %}>{{ l.nombre }}</option>{% endfor %}</select></div>
+<div class="col-12"><label class="form-label">Actividad</label><input class="form-control" name="actividad" maxlength="200" value="{{ solicitud.NombreActividad }}" required></div>
+<div class="col-12"><label class="form-label">Información bancaria</label><input class="form-control" name="informacion_bancaria" maxlength="200" value="{{ solicitud.InformacionBancaria }}" required></div>
+<div class="col-12"><label class="form-label">Justificación</label><textarea class="form-control" name="justificacion" maxlength="400" required>{{ solicitud.Justificacion }}</textarea></div>
+<div><button class="btn btn-fdu">Guardar cambios</button></div></form>{% endblock %}

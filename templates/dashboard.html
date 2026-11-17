@@ -1,0 +1,85 @@
+
+{% extends "base.html" %}
+
+{% block titulo %}
+Panel principal | Sistema FDU
+{% endblock %}
+
+{% block estilos %}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/dashboard.css') }}"
+>
+{% endblock %}
+
+{% block contenido %}
+
+<div class="mb-4">
+    <h1 class="fw-bold">Panel principal</h1>
+    <p class="text-muted">
+        Bienvenido al Sistema de Gestión FDU.
+    </p>
+</div>
+
+<div class="row g-4">
+
+    <!-- Usuarios -->
+    <div class="col-md-6 col-xl-4">
+        <div class="card modulo-card h-100">
+            <div class="card-body p-4">
+                <div class="modulo-icono">U</div>
+
+                <h5 class="fw-bold">Usuarios</h5>
+                <p class="text-muted">
+                    Administración de usuarios,
+                    roles y permisos.
+                </p>
+
+                <span class="badge text-bg-secondary">
+                    Próximamente
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solicitudes -->
+    <div class="col-md-6 col-xl-4">
+        <div class="card modulo-card h-100">
+            <div class="card-body p-4">
+                <div class="modulo-icono">S</div>
+
+                <h5 class="fw-bold">Solicitudes</h5>
+                <p class="text-muted">
+                    Registro y seguimiento de
+                    solicitudes de fondos.
+                </p>
+
+                <span class="badge text-bg-secondary">
+                    Próximamente
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sesiones -->
+    <div class="col-md-6 col-xl-4">
+        <div class="card modulo-card h-100">
+            <div class="card-body p-4">
+                <div class="modulo-icono">C</div>
+
+                <h5 class="fw-bold">Sesiones</h5>
+                <p class="text-muted">
+                    Gestión de sesiones y
+                    participantes del comité.
+                </p>
+
+                <span class="badge text-bg-secondary">
+                    Próximamente
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

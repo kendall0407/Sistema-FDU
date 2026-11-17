@@ -1,0 +1,25 @@
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #102c46, #285e72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    border: none;
+    border-radius: 18px;
+}
+
+.btn-fdu {
+    background-color: #176b73;
+    color: white;
+}
+
+.btn-fdu:hover {
+    background-color: #115159;
+    color: white;
+}

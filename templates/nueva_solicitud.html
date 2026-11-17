@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block titulo %}Nueva solicitud | Sistema FDU{% endblock %}{% block contenido %}
+<div class="mb-4"><a href="{{ url_for('fdu.solicitudes') }}" class="link-secondary">← Volver a solicitudes</a><h1 class="mt-3">Nueva solicitud de fondos</h1></div>
+<div class="card card-fdu"><div class="card-body p-4"><form method="POST" class="row g-3"><input type="hidden" name="_csrf" value="{{ fdu_csrf() }}">
+<div class="col-md-6"><label class="form-label">Monto solicitado (₡)</label><input name="monto" type="number" step="0.01" min="0.01" class="form-control" required></div>
+<div class="col-md-6"><label class="form-label">Línea de acción</label><select name="linea_accion" class="form-select" required><option value="">Seleccionar...</option>{% for l in lineas %}<option value="{{ l.id }}">{{ l.nombre }} (máx. ₡{{ '{:,.0f}'.format(l.maximo) }})</option>{% endfor %}</select></div>
+<div class="col-12"><label class="form-label">Nombre de la actividad</label><input name="actividad" maxlength="200" class="form-control" required></div>
+<div class="col-12"><label class="form-label">Información bancaria</label><input name="informacion_bancaria" maxlength="200" class="form-control" required></div>
+<div class="col-12"><label class="form-label">Justificación</label><textarea name="justificacion" maxlength="400" rows="4" class="form-control" required></textarea></div>
+<div class="col-12"><button class="btn btn-fdu">Guardar solicitud</button></div></form></div></div>
+{% endblock %}

@@ -1,0 +1,12 @@
+:root { --color-primario: #172338; --color-secundario: #314b69; --color-fondo: #f4f7fa; --ancho-sidebar: 250px; }
+body { margin:0; background:var(--color-fondo);font-family:'Segoe UI',Arial,sans-serif;color:#172338; }
+.sidebar {width:var(--ancho-sidebar)!important;background:var(--color-primario)!important;color:white!important;}
+.sidebar .offcanvas-body{padding:24px 16px;}
+.sidebar-logo{text-align:center;padding:14px 0 30px;border-bottom:1px solid #ffffff26;margin-bottom:24px;}
+.sidebar-logo small{color:#b8cbd8;}
+.sidebar-nav{display:flex;flex-direction:column;gap:8px;}
+.sidebar-link{display:block;padding:13px 18px;border-radius:10px;text-decoration:none;color:#cbd5e1;transition:background .2s;}
+.sidebar-link:hover,.sidebar-link.active{background:var(--color-secundario);color:#fff;}
+.main-content{min-height:100vh;}.topbar{height:72px;display:flex;justify-content:flex-end;align-items:center;gap:16px;padding:0 32px;background:white;border-bottom:1px solid #e4e9ee;}.topbar-user{color:#445566;overflow-wrap:anywhere;}.page-content{padding:32px;}.btn-fdu{background:#314b69;color:#fff;}.btn-fdu:hover{background:#172338;color:#fff;}.card-fdu{border:1px solid #e5ebf0;border-radius:16px;box-shadow:0 3px 14px #17233809;}.table th{color:#314b69;background:#f8fafc;}.table td,.table th{padding:14px;}
+@media(min-width:992px){.sidebar{position:fixed;top:0;bottom:0;left:0}.main-content{margin-left:var(--ancho-sidebar);}}
+@media(max-width:991.98px){.topbar{justify-content:space-between;padding:0 16px}.page-content{padding:20px 16px}}

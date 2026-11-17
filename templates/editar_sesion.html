@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block titulo %}Editar sesión{% endblock %}{% block contenido %}
+<a href="{{ url_for('fdu.sesiones') }}">← Volver</a><h1>Editar sesión #{{ sesion.id }}</h1>
+<form method="POST" class="card card-fdu p-4 row g-3"><input type="hidden" name="_csrf" value="{{ fdu_csrf() }}">
+<div class="col-md-4"><label class="form-label">Fecha</label><input type="date" name="fecha" class="form-control" value="{{ sesion.fecha }}" required></div>
+<div class="col-md-4"><label class="form-label">Inicio</label><input type="time" name="inicio" class="form-control" value="{{ sesion.inicio }}" required></div>
+<div class="col-md-4"><label class="form-label">Fin</label><input type="time" name="fin" class="form-control" value="{{ sesion.fin or '' }}"></div>
+<div class="col-md-6"><label class="form-label">Estado</label><select name="estado" class="form-select">{% for estado in ['PROGRAMADA','REALIZADA','CANCELADA'] %}<option value="{{ estado }}" {% if sesion.estado == estado %}selected{% endif %}>{{ estado }}</option>{% endfor %}</select></div>
+<div><button class="btn btn-fdu">Guardar cambios</button></div></form>{% endblock %}

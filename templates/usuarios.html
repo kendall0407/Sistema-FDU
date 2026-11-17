@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block titulo %}Usuarios | Sistema FDU{% endblock %}{% block contenido %}
+<div class="d-flex justify-content-between mb-4"><h1>Usuarios</h1>{% if rol_actual == 5 %}<a class="btn btn-fdu" href="{{ url_for('fdu.nuevo_usuario') }}">+ Nuevo usuario</a>{% endif %}</div>
+<div class="card card-fdu"><div class="card-body p-4"><input class="form-control mb-3" data-filter="tablaUsuarios" placeholder="Buscar usuario...">
+<div class="table-responsive"><table class="table table-hover" id="tablaUsuarios"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+{% for u in usuarios %}<tr><td>{{ u.nombre }} {{ u.apellidos }}</td><td>{{ u.correo }}</td><td>{{ u.rol }}</td><td>{{ u.estado }}</td><td>
+{% if u.correo|lower == correo_actual|lower %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('fdu.editar_usuario', id_usuario=u.id) }}">Editar mi perfil</a>{% endif %}
+{% if rol_actual in [3,5] and u.correo|lower != correo_actual|lower %}<form method="POST" class="d-inline" action="{{ url_for('fdu.estado_usuario', id_usuario=u.id) }}"><input type="hidden" name="_csrf" value="{{ fdu_csrf() }}"><button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Confirmás cambiar el estado de este usuario?')">{{ 'Desactivar' if u.estado|upper == 'ACTIVO' else 'Reactivar' }}</button></form>{% endif %}
+</td></tr>{% else %}<tr><td colspan="5">No hay usuarios.</td></tr>{% endfor %}</tbody></table></div></div></div>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/fdu.js') }}"></script>{% endblock %}
