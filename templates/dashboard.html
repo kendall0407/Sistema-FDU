@@ -1,85 +1,61 @@
-
 {% extends "base.html" %}
-
-{% block titulo %}
-Panel principal | Sistema FDU
-{% endblock %}
-
+{% block titulo %}Inicio | Sistema FDU{% endblock %}
 {% block estilos %}
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/dashboard.css') }}"
->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
-
 {% block contenido %}
+<section class="fdu-welcome mb-4">
+  <div class="welcome-copy">
+    <span class="eyebrow">PANEL DE CONTROL · SISTEMA FDU</span>
+    <h1>¡Bienvenido al sistema!</h1>
+    <p>Gestioná solicitudes, sesiones y procesos del fondo desde un solo lugar.</p>
+    <div class="welcome-user"><span class="user-dot"></span>{{ session.get('correo', 'Usuario') }}</div>
+  </div>
+  <div class="welcome-graphic" aria-hidden="true">
+    <span class="graphic-circle one"></span><span class="graphic-circle two"></span>
+    <span class="graphic-icon">FDU</span>
+  </div>
+</section>
 
-<div class="mb-4">
-    <h1 class="fw-bold">Panel principal</h1>
-    <p class="text-muted">
-        Bienvenido al Sistema de Gestión FDU.
-    </p>
-</div>
+<div class="section-title mb-3"><div><span class="eyebrow text-dark">TU ESPACIO DE TRABAJO</span><h2>Accesos rápidos</h2></div><span class="section-subtitle">Funciones principales</span></div>
+<section class="row g-3 mb-5" aria-label="Accesos rápidos">
+  {% if puede_ver('usuarios') %}
+<div class="col-md-4"><a class="quick-card" href="{{ url_for('fdu.usuarios') }}"><span class="quick-symbol symbol-blue">U</span><span class="quick-text"><strong>Gestionar usuarios</strong><small>Consultar cuentas y roles</small></span><span class="quick-arrow">↗</span></a></div>
+{% endif %}
+  {% if puede_ver('solicitudes') %}
+<div class="col-md-4"><a class="quick-card" href="{{ url_for('fdu.solicitudes') }}"><span class="quick-symbol symbol-teal">S</span><span class="quick-text"><strong>Ver solicitudes</strong><small>Revisar solicitudes de fondos</small></span><span class="quick-arrow">↗</span></a></div>
+{% endif %}
+  {% if puede_ver('sesiones') %}
+<div class="col-md-4"><a class="quick-card" href="{{ url_for('fdu.sesiones') }}"><span class="quick-symbol symbol-purple">C</span><span class="quick-text"><strong>Sesiones</strong><small>Gestionar reuniones del comité</small></span><span class="quick-arrow">↗</span></a></div>
+{% endif %}
+</section>
 
-<div class="row g-4">
+<div class="section-title mb-3"><div><span class="eyebrow text-dark">EXPLORÁ EL SISTEMA</span><h2>Módulos disponibles</h2></div></div>
+<section class="row g-3" aria-label="Módulos disponibles">
+  {% set modulos = [
+    ('usuarios', 'Usuarios', 'Cuentas, perfiles y permisos', 'U', 'fdu.usuarios', None, 'symbol-blue'),
+    ('solicitudes', 'Solicitudes', 'Registro y seguimiento de fondos', 'S', 'fdu.solicitudes', None, 'symbol-teal'),
+    ('sesiones', 'Sesiones', 'Reuniones y participantes', 'C', 'fdu.sesiones', None, 'symbol-purple'),
+    ('actas', 'Actas', 'Documentación de las sesiones', 'A', None, '/modulos/actas', 'symbol-orange'),
+    ('agenda', 'Agenda', 'Puntos y temas por sesión', 'G', None, '/modulos/agenda', 'symbol-blue'),
+    ('evaluaciones', 'Evaluaciones', 'Resoluciones de solicitudes', 'E', None, '/modulos/evaluaciones', 'symbol-teal'),
+    ('lineas', 'Líneas de acción', 'Categorías de financiamiento', 'L', None, '/modulos/lineas', 'symbol-purple')
+  ] %}
+  {% for clave, nombre, descripcion, letra, endpoint, ruta, estilo in modulos %}
+  {% if puede_ver(clave) %}
+  <div class="col-sm-6 col-xl-4">
+    <a class="module-card" href="{{ url_for(endpoint) if endpoint else ruta }}">
+      <div class="module-head"><span class="quick-symbol {{ estilo }}">{{ letra }}</span><span class="module-arrow">↗</span></div>
+      <strong>{{ nombre }}</strong><p>{{ descripcion }}</p>
+      <span class="module-action">Ir al módulo <span aria-hidden="true">→</span></span>
+    </a>
+  </div>
+  {% endif %}
+  {% endfor %}
+</section>
 
-    <!-- Usuarios -->
-    <div class="col-md-6 col-xl-4">
-        <div class="card modulo-card h-100">
-            <div class="card-body p-4">
-                <div class="modulo-icono">U</div>
-
-                <h5 class="fw-bold">Usuarios</h5>
-                <p class="text-muted">
-                    Administración de usuarios,
-                    roles y permisos.
-                </p>
-
-                <span class="badge text-bg-secondary">
-                    Próximamente
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Solicitudes -->
-    <div class="col-md-6 col-xl-4">
-        <div class="card modulo-card h-100">
-            <div class="card-body p-4">
-                <div class="modulo-icono">S</div>
-
-                <h5 class="fw-bold">Solicitudes</h5>
-                <p class="text-muted">
-                    Registro y seguimiento de
-                    solicitudes de fondos.
-                </p>
-
-                <span class="badge text-bg-secondary">
-                    Próximamente
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sesiones -->
-    <div class="col-md-6 col-xl-4">
-        <div class="card modulo-card h-100">
-            <div class="card-body p-4">
-                <div class="modulo-icono">C</div>
-
-                <h5 class="fw-bold">Sesiones</h5>
-                <p class="text-muted">
-                    Gestión de sesiones y
-                    participantes del comité.
-                </p>
-
-                <span class="badge text-bg-secondary">
-                    Próximamente
-                </span>
-            </div>
-        </div>
-    </div>
-
-</div>
-
+<section class="dashboard-note mt-4" aria-label="Información del panel">
+  <div><strong>Panel de navegación</strong><p>Los registros y permisos se consultan dentro de cada módulo. Las acciones disponibles dependen del rol de tu cuenta.</p></div>
+  <span class="note-icon" aria-hidden="true">i</span>
+</section>
 {% endblock %}

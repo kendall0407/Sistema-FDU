@@ -8,6 +8,8 @@ app.secret_key = os.environ.get("SECRET_KEY", "solo-desarrollo-local")
 
 from rutas_fdu import fdu
 app.register_blueprint(fdu)
+from rutas_extra_fdu import extra_fdu
+app.register_blueprint(extra_fdu)
 
 def login_requerido(funcion):
     @wraps(funcion)
@@ -117,6 +119,39 @@ def listar_usuarios():
             cursor.close()
         if conexion is not None:
             conexion.close()
+from flask import session, current_app
+from conexion import ObtenerConexion
+
+PERMISOS_MENU = {
+    1: {'solicitudes'},                        # Estudiante
+    2: {'solicitudes'},                        # Graduado
+    3: {'usuarios', 'solicitudes', 'sesiones', 'agenda', 'evaluaciones'},
+    4: {'usuarios', 'solicitudes', 'sesiones', 'actas', 'agenda', 'evaluaciones', 'lineas'},
+    5: {'usuarios', 'solicitudes', 'sesiones', 'actas', 'agenda', 'evaluaciones', 'lineas'},
+}
+
+@app.context_processor
+def permisos_para_plantillas():
+    rol = None
+    conexion = None
+    try:
+        usuario_id = session.get('usuario_id')
+        if isinstance(usuario_id, int) and not session.get('modo_demo'):
+            conexion = ObtenerConexion()
+            cursor = conexion.cursor()
+            cursor.execute("SELECT rol_id FROM dbo.Usuario WHERE id = ? AND estado_id = 1 AND bloqueado = 0",
+                           (usuario_id,))
+            fila = cursor.fetchone()
+            if fila:
+                rol = fila[0]
+    except Exception:
+        current_app.logger.exception('No se pudieron consultar permisos del menú')
+    finally:
+        if conexion is not None:
+            conexion.close()
+
+    permitidos = PERMISOS_MENU.get(rol, set())
+    return {'puede_ver': lambda modulo: modulo in permitidos}
 
 if __name__ == "__main__":
     app.run(debug=True)

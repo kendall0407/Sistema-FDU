@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar' if editando else 'Crear' }} {{ cfg.titulo }} | Sistema FDU{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{{ url_for('static', filename='css/fdu_extra.css') }}">{% endblock %}
+{% block contenido %}
+<div class="mb-4"><a href="{{ url_for('extra_fdu.listado',modulo=modulo) }}" class="text-decoration-none">← Volver a {{ cfg.titulo }}</a>
+<h1 class="fw-bold mt-3">{{ 'Editar' if editando else 'Crear' }} · {{ cfg.titulo }}</h1></div>
+{% with mensajes = get_flashed_messages(with_categories=true) %}{% for tipo,mensaje in mensajes %}<div class="alert alert-{{ tipo }}">{{ mensaje }}</div>{% endfor %}{% endwith %}
+<div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4">
+<form method="post">
+<input type="hidden" name="_csrf" value="{{ fdu_csrf_token() }}">
+<input type="hidden" name="sesion_original" value="{{ session_id or '' }}">
+<div class="row g-3">
+{% for field,label,tipo in cfg.fields %}
+{% set frozen = editando and (field in ['IdSesion','IdSolicitud'] and modulo != 'agenda' or field == 'IdSesion' and modulo == 'agenda') %}
+{% if not frozen %}
+<div class="col-12 {% if tipo != 'textarea' %}col-lg-6{% endif %}">
+<label class="form-label fw-semibold" for="{{ field }}">{{ label }}</label>
+{% if tipo == 'textarea' %}<textarea name="{{ field }}" id="{{ field }}" rows="4" class="form-control" {% if field == 'Contenido' %}required{% endif %}>{{ registro.get(field,'') or '' }}</textarea>
+{% elif tipo == 'session' %}<select name="{{ field }}" id="{{ field }}" class="form-select" required><option value="">Seleccionar sesión</option>{% for item in sesiones %}<option value="{{ item.id }}" {% if registro.get(field) == item.id %}selected{% endif %}>{{ item.label }}</option>{% endfor %}</select>
+{% elif tipo in ('solicitud','solicitud_opt') %}<select name="{{ field }}" id="{{ field }}" class="form-select" {% if tipo == 'solicitud' %}required{% endif %}><option value="">{{ 'Seleccionar solicitud' if tipo == 'solicitud' else 'Sin solicitud (usar tema)' }}</option>{% for item in solicitudes %}<option value="{{ item.id }}" {% if registro.get(field) == item.id %}selected{% endif %}>{{ item.label }}</option>{% endfor %}</select>
+{% elif tipo == 'decision' %}<select name="{{ field }}" id="{{ field }}" class="form-select" required>{% for opcion in ['APROBADA','RECHAZADA','INFORMACION_ADICIONAL'] %}<option value="{{ opcion }}" {% if registro.get(field) == opcion %}selected{% endif %}>{{ opcion.replace('_',' ') }}</option>{% endfor %}</select>
+{% else %}<input class="form-control" name="{{ field }}" id="{{ field }}" type="{{ 'number' if tipo in ('number','decimal','decimal_opt') else 'text' }}" {% if tipo in ('decimal','decimal_opt') %}step="0.01"{% endif %} {% if tipo in ('number','decimal') %}min="0.01"{% endif %} value="{{ registro.get(field,'') if registro.get(field) is not none else '' }}" {% if tipo not in ('decimal_opt',) and field not in ('Tema',) %}required{% endif %}>{% endif %}
+</div>
+{% endif %}
+{% endfor %}
+</div>
+<p class="text-muted small mt-3">El sistema aplica las restricciones de roles y validaciones definidas en el backend.</p>
+<div class="d-flex gap-2 mt-3"><button class="btn btn-fdu-extra">{{ 'Guardar cambios' if editando else 'Crear registro' }}</button><a href="{{ url_for('extra_fdu.listado',modulo=modulo) }}" class="btn btn-outline-secondary">Cancelar</a></div>
+</form></div></div>
+{% endblock %}

@@ -12,9 +12,27 @@
 <div class="sidebar-logo d-none d-lg-block"><h4 class="fw-bold">Sistema FDU</h4><small>Gestión de fondos</small></div>
 <nav class="sidebar-nav" aria-label="Menú principal">
 <a class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">⌂ &nbsp; Inicio</a>
-<a class="sidebar-link {% if request.endpoint in ['fdu.usuarios','fdu.nuevo_usuario'] %}active{% endif %}" href="{{ url_for('fdu.usuarios') }}">♙ &nbsp; Usuarios</a>
-<a class="sidebar-link {% if request.endpoint in ['fdu.solicitudes','fdu.nueva_solicitud'] %}active{% endif %}" href="{{ url_for('fdu.solicitudes') }}">▤ &nbsp; Solicitudes</a>
-<a class="sidebar-link {% if request.endpoint == 'fdu.sesiones' %}active{% endif %}" href="{{ url_for('fdu.sesiones') }}">▦ &nbsp; Sesiones</a>
+{% if puede_ver('usuarios') %}
+<a class="sidebar-link {% if request.endpoint and request.endpoint.startswith('fdu.') and 'usuario' in request.endpoint %}active{% endif %}" href="{{ url_for('fdu.usuarios') }}">♙ &nbsp; Usuarios</a>
+{% endif %}
+{% if puede_ver('solicitudes') %}
+<a class="sidebar-link {% if request.endpoint and 'solicitud' in request.endpoint %}active{% endif %}" href="{{ url_for('fdu.solicitudes') }}">▤ &nbsp; Solicitudes</a>
+{% endif %}
+{% if puede_ver('sesiones') %}
+<a class="sidebar-link {% if request.endpoint and 'sesion' in request.endpoint %}active{% endif %}" href="{{ url_for('fdu.sesiones') }}">▦ &nbsp; Sesiones</a>
+{% endif %}
+{% if puede_ver('actas') %}
+<a class="sidebar-link" href="{{ url_for('extra_fdu.listado', modulo='actas') }}">Actas</a>
+{% endif %}
+{% if puede_ver('agenda') %}
+<a class="sidebar-link" href="{{ url_for('extra_fdu.listado', modulo='agenda') }}">Agenda</a>
+{% endif %}
+{% if puede_ver('evaluaciones') %}
+<a class="sidebar-link" href="{{ url_for('extra_fdu.listado', modulo='evaluaciones') }}">Evaluaciones</a>
+{% endif %}
+{% if puede_ver('lineas') %}
+<a class="sidebar-link" href="{{ url_for('extra_fdu.listado', modulo='lineas') }}">Líneas de acción</a>
+{% endif %}
 </nav>
 <form action="{{ url_for('logout') }}" method="POST" class="mt-auto"><button class="btn btn-outline-light w-100" type="submit">Cerrar sesión</button></form>
 </div></aside>

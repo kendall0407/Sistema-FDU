@@ -1,34 +1,21 @@
-
-.modulo-card {
-    border: 1px solid #e6edf2;
-    border-radius: 16px;
-    transition: transform 0.2s ease,
-                box-shadow 0.2s ease;
-}
-
-.modulo-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.modulo-card h5 {
-    color: var(--color-primario);
-}
-
-.modulo-icono {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #e1f1f1;
-    color: var(--color-secundario);
-    font-size: 20px;
-    font-weight: bold;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.modulo-card p {
-    min-height: 48px;
-}
+:root { --fdu-navy:#172338; --fdu-blue:#314b69; --fdu-muted:#66758a; }
+.fdu-welcome { min-height:220px; border-radius:22px; padding:34px 38px; background:linear-gradient(112deg,#172338 0%,#263d5c 72%,#365b78 100%); color:#fff; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:space-between; box-shadow:0 12px 30px rgba(23,35,56,.12); }
+.fdu-welcome .eyebrow { color:#a9cfdd; } .eyebrow { display:block; font-size:.69rem; font-weight:750; letter-spacing:.14em; margin-bottom:9px; }
+.fdu-welcome h1 { color:white; font-size:clamp(1.6rem,3vw,2.55rem); font-weight:750; letter-spacing:-.035em; margin:0 0 8px; }
+.fdu-welcome p { color:#d6e3ee; max-width:530px; margin-bottom:20px; }
+.welcome-copy {position:relative; z-index:1;}
+.welcome-user { font-size:.82rem; display:inline-flex; align-items:center; gap:8px; background:#ffffff1d; border:1px solid #ffffff2b; padding:7px 12px; border-radius:999px; max-width:100%; overflow-wrap:anywhere; }
+.user-dot { height:8px; width:8px; background:#73dcc0; border-radius:50%; flex:none; }
+.welcome-graphic {position:relative; width:175px; height:150px; flex:none; margin-right:30px; display:grid; place-items:center;}
+.graphic-circle {position:absolute; border:1px solid #ffffff35; border-radius:50%;} .graphic-circle.one {width:140px;height:140px;} .graphic-circle.two {width:190px;height:190px;} .graphic-icon {width:106px;height:106px;background:#ffffff1e;border:1px solid #ffffff47;border-radius:28px;display:grid;place-items:center;font-weight:800;font-size:1.8rem;letter-spacing:.08em;transform:rotate(-8deg);}
+.section-title { display:flex; justify-content:space-between; align-items:end; gap:12px; } .section-title h2 { font-size:1.45rem; font-weight:750; color:var(--fdu-navy); margin:0; } .section-subtitle {color:var(--fdu-muted);font-size:.84rem;}
+.quick-card, .module-card { background:#fff; text-decoration:none; color:#172338; border:1px solid #e3e9f0; border-radius:16px; transition:transform .18s,box-shadow .18s,border-color .18s; }
+.quick-card:hover,.module-card:hover {transform:translateY(-3px); box-shadow:0 10px 28px #263d5c17; border-color:#b9cbe0; color:#172338;}
+.quick-card {display:flex; align-items:center; gap:13px; padding:19px; min-height:104px;}
+.quick-symbol {display:grid; place-items:center; width:49px; height:49px; border-radius:13px; font-weight:800; font-size:1.2rem; flex:none;}
+.symbol-blue {background:#e7effa;color:#355e95;} .symbol-teal {background:#e0f4f1;color:#147b74;} .symbol-purple {background:#f0eafa;color:#7152a3;} .symbol-orange {background:#fff0e3;color:#aa6b32;}
+.quick-text { display:flex; flex-direction:column;gap:3px;} .quick-text strong {font-size:.93rem;} .quick-text small {font-size:.78rem;color:var(--fdu-muted);}
+.quick-arrow,.module-arrow {margin-left:auto;color:#8294ab;font-size:1.2rem;}
+.module-card {display:block;padding:24px; min-height:215px;height:100%;} .module-head {display:flex;justify-content:space-between;align-items:start;margin-bottom:19px;} .module-card strong {font-size:1.09rem;} .module-card p {font-size:.85rem;color:var(--fdu-muted);margin:6px 0 18px;} .module-action {font-size:.81rem;font-weight:700;color:#385c82;}
+.dashboard-note {background:#eaf0f7;border:1px solid #d9e3ef;border-radius:15px;padding:18px 23px;display:flex;justify-content:space-between;align-items:center;gap:20px;} .dashboard-note strong {color:#263d5c;} .dashboard-note p {margin:5px 0 0;color:#63748a;font-size:.85rem;} .note-icon {background:#314b69;color:white;border-radius:50%;width:27px;height:27px;flex:none;display:grid;place-items:center;font-weight:700;font-family:serif;}
+@media(max-width:767px){.fdu-welcome{padding:25px 23px;min-height:190px}.welcome-graphic{display:none}.section-subtitle{display:none}.module-card{min-height:185px}}
